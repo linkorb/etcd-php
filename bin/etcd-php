@@ -9,5 +9,7 @@ require_once(__DIR__ . "/../vendor/autoload.php");
 
 $application = new Application('Etcd Console Tool', '1.0.0');
 $application->setCatchExceptions(true);
-$application->add(new \LinkORB\Component\Etcd\Command\TestCommand());
+$application->add(new \LinkORB\Component\Etcd\Command\EtcdRequestCommand());
+$application->add(new \LinkORB\Component\Etcd\Command\EtcdSetCommand());
+$application->add(new \LinkORB\Component\Etcd\Command\EtcdGetCommand());
 $application->run();

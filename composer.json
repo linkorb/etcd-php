@@ -13,7 +13,8 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "symfony/console": "2.4.*@dev"
+        "symfony/console": "2.4.*@dev",
+        "guzzle/guzzle": "dev-empty_query_string"
     },
     "autoload": {
 	"psr-0": {
