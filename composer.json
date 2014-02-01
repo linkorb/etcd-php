@@ -1,0 +1,24 @@
+{
+    "name": "linkorb/etcd-php",
+    "description": "Etcd client library for PHP",
+    "homepage": "http://www.github.com/linkorb/etcd-php",
+    "keywords": ["php", "etcd", "api", "distributed", "configuration"],
+    "type": "library",
+    "authors": [
+        {
+            "name": "Joost Faassen",
+            "email": "j.faassen@linkorb.com",
+    	    "role": "Development"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "symfony/console": "2.4.*@dev"
+    },
+    "autoload": {
+	"psr-0": {
+	    "LinkORB\\": "src/"
+	} 
+    },
+    "license": "MIT"
+}
