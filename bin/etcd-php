@@ -12,4 +12,6 @@ $application->setCatchExceptions(true);
 $application->add(new \LinkORB\Component\Etcd\Command\EtcdRequestCommand());
 $application->add(new \LinkORB\Component\Etcd\Command\EtcdSetCommand());
 $application->add(new \LinkORB\Component\Etcd\Command\EtcdGetCommand());
+$application->add(new \LinkORB\Component\Etcd\Command\EtcdMkCommand());
+$application->add(new \LinkORB\Component\Etcd\Command\EtcdUpdateCommand());
 $application->run();
