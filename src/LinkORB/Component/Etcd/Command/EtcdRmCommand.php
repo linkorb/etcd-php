@@ -6,38 +6,26 @@ use LinkORB\Component\Etcd\Client as EtcdClient;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class EtcdSetCommand extends Command
+class EtcdRmCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('etcd:set')
+            ->setName('etcd:rm')
             ->setDescription(
-                'Set a key'
+                'Remove a key'
             )
             ->addArgument(
                 'key',
                 InputArgument::REQUIRED,
-                'Key to set'
-            )
-            ->addArgument(
-                'value',
-                InputArgument::REQUIRED,
-                'Value to set'
+                'Key to remove'
             )
             ->addArgument(
                 'server',
                 InputArgument::OPTIONAL,
-                'Base url of etcd server'
-            )
-            ->addOption(
-                'ttl',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                0
+                'Base url of etcd server and the default is http://127.0.0.1:4001'
             );
     }
 
@@ -45,13 +33,11 @@ class EtcdSetCommand extends Command
     {
         $server = $input->getArgument('server');
         $key = $input->getArgument('key');
-        $value = $input->getArgument('value');
-        $ttl = $input->getOption('ttl');
-        echo "Setting `$key` to `$value`\n";
+        $output->writeln("<info>Removing key `$key`</info>");
         $client = new EtcdClient($server);
-        $data = $client->set($key, $value, $ttl);
+        $data = $client->rm($key);
 
-        $json = json_encode($data, JSON_PRETTY_PRINT);
+        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         echo $json;
     }
 }

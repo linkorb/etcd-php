@@ -9,31 +9,23 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class EtcdSetCommand extends Command
+class EtcdMkdirCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('etcd:set')
+            ->setName('etcd:mkdir')
             ->setDescription(
-                'Set a key'
-            )
-            ->addArgument(
+                'make a new directory'
+            )->addArgument(
                 'key',
                 InputArgument::REQUIRED,
                 'Key to set'
-            )
-            ->addArgument(
-                'value',
-                InputArgument::REQUIRED,
-                'Value to set'
-            )
-            ->addArgument(
+            )->addArgument(
                 'server',
                 InputArgument::OPTIONAL,
-                'Base url of etcd server'
-            )
-            ->addOption(
+                'Base url of etcd server and the default is http://127.0.0.1:4001'
+            )->addOption(
                 'ttl',
                 null,
                 InputOption::VALUE_OPTIONAL,
@@ -45,13 +37,11 @@ class EtcdSetCommand extends Command
     {
         $server = $input->getArgument('server');
         $key = $input->getArgument('key');
-        $value = $input->getArgument('value');
         $ttl = $input->getOption('ttl');
-        echo "Setting `$key` to `$value`\n";
+        $output->writeln("<info>making directory `$key`</info>");
         $client = new EtcdClient($server);
-        $data = $client->set($key, $value, $ttl);
-
-        $json = json_encode($data, JSON_PRETTY_PRINT);
+        $data = $client->mkdir($key, $ttl);
+        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         echo $json;
     }
 }
