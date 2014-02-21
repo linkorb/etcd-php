@@ -3,7 +3,6 @@
 
 use Symfony\Component\Console\Application;
 
-
 require_once(__DIR__ . "/../vendor/autoload.php");
 
 
@@ -12,4 +11,9 @@ $application->setCatchExceptions(true);
 $application->add(new \LinkORB\Component\Etcd\Command\EtcdRequestCommand());
 $application->add(new \LinkORB\Component\Etcd\Command\EtcdSetCommand());
 $application->add(new \LinkORB\Component\Etcd\Command\EtcdGetCommand());
+$application->add(new \LinkORB\Component\Etcd\Command\EtcdMkCommand());
+$application->add(new \LinkORB\Component\Etcd\Command\EtcdUpdateCommand());
+$application->add(new \LinkORB\Component\Etcd\Command\EtcdRmCommand());
+$application->add(new \LinkORB\Component\Etcd\Command\EtcdMkdirCommand());
+$application->add(new \LinkORB\Component\Etcd\Command\EtcdRmdirCommand());
 $application->run();

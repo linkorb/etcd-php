@@ -9,14 +9,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class EtcdSetCommand extends Command
+class EtcdUpdateCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('etcd:set')
+            ->setName('etcd:update')
             ->setDescription(
-                'Set a key'
+                'Update an existing key with a given value'
             )
             ->addArgument(
                 'key',
@@ -27,13 +27,11 @@ class EtcdSetCommand extends Command
                 'value',
                 InputArgument::REQUIRED,
                 'Value to set'
-            )
-            ->addArgument(
+            )->addArgument(
                 'server',
                 InputArgument::OPTIONAL,
-                'Base url of etcd server'
-            )
-            ->addOption(
+                'Base url of etcd server and the default is http://127.0.0.1:4001'
+            )->addOption(
                 'ttl',
                 null,
                 InputOption::VALUE_OPTIONAL,
@@ -47,11 +45,11 @@ class EtcdSetCommand extends Command
         $key = $input->getArgument('key');
         $value = $input->getArgument('value');
         $ttl = $input->getOption('ttl');
-        echo "Setting `$key` to `$value`\n";
+        $output->writeln("<info>Update `$value` of `$key`</info>");
         $client = new EtcdClient($server);
-        $data = $client->set($key, $value, $ttl);
+        $data = $client->update($key, $value, $ttl);
 
-        $json = json_encode($data, JSON_PRETTY_PRINT);
+        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         echo $json;
     }
 }

@@ -9,35 +9,31 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class EtcdSetCommand extends Command
+class EtcdRmdirCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('etcd:set')
+            ->setName('etcd:rmdir')
             ->setDescription(
-                'Set a key'
+                'Removes the key if it is an empty directory or a key-value pair'
             )
             ->addArgument(
                 'key',
                 InputArgument::REQUIRED,
-                'Key to set'
-            )
-            ->addArgument(
-                'value',
-                InputArgument::REQUIRED,
-                'Value to set'
+                'Key to remove'
             )
             ->addArgument(
                 'server',
                 InputArgument::OPTIONAL,
-                'Base url of etcd server'
+                'Base url of etcd server and the default is http://127.0.0.1:4001'
             )
             ->addOption(
-                'ttl',
+                'recursive',
                 null,
                 InputOption::VALUE_OPTIONAL,
-                0
+                'To delete a directory that holds keys',
+                'false'
             );
     }
 
@@ -45,13 +41,11 @@ class EtcdSetCommand extends Command
     {
         $server = $input->getArgument('server');
         $key = $input->getArgument('key');
-        $value = $input->getArgument('value');
-        $ttl = $input->getOption('ttl');
-        echo "Setting `$key` to `$value`\n";
+        $recursive = $input->getOption('recursive');
+        $output->writeln("<info>Removing key `$key`</info>");
         $client = new EtcdClient($server);
-        $data = $client->set($key, $value, $ttl);
-
-        $json = json_encode($data, JSON_PRETTY_PRINT);
+        $data = $client->rmdir($key, ($recursive == 'true'));
+        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         echo $json;
     }
 }

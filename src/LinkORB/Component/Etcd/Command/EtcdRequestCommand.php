@@ -6,12 +6,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-
 use LinkORB\Component\Etcd\Client as EtcdClient;
-
 
 class EtcdRequestCommand extends Command
 {
+
     protected function configure()
     {
         $this
@@ -37,11 +36,6 @@ class EtcdRequestCommand extends Command
         $uri = $input->getArgument('uri');
         $client = new EtcdClient($server);
         $data = $client->doRequest($uri);
-
-        $json = json_encode($data, JSON_PRETTY_PRINT);
-        echo $json;
-
-
-
+        $output->writeln($data);
     }
 }
