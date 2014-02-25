@@ -3,8 +3,10 @@
 namespace LinkORB\Component\Etcd;
 
 use Guzzle\Http\Client as GuzzleClient;
+use LinkORB\Component\Etcd\Exception\EtcdException;
 use LinkORB\Component\Etcd\Exception\KeyExistsException;
 use LinkORB\Component\Etcd\Exception\KeyNotFoundException;
+use RecursiveArrayIterator;
 use stdClass;
 
 class Client
@@ -24,7 +26,7 @@ class Client
             $this->server = $server;
         }
         
-        echo 'Testing server ' . $this->server . PHP_EOL;
+        // echo 'Testing server ' . $this->server . PHP_EOL;
          
         $this->apiversion = $version;
         $this->guzzleclient = new GuzzleClient(
@@ -44,11 +46,19 @@ class Client
      */
     private function buildKeyUri($key)
     {
+        if (strpos('/', $key) === false) {
+            $key = '/' . $key;
+        }
         $uri = '/' . $this->apiversion . '/keys' . $key;
         return $uri;
     }
 
 
+    /**
+     * Do a server request
+     * @param string $uri
+     * @return mixed
+     */
     public function doRequest($uri)
     {
         $request = $this->guzzleclient->get($uri);
@@ -91,8 +101,12 @@ class Client
     {
         $request = $this->guzzleclient->get($this->buildKeyUri($key));
         $response = $request->send();
+        
         $data = json_decode($response->getBody());
-        return $data;
+        if (isset($data->errorCode)) {
+            throw new KeyNotFoundException($data->message, $data->errorCode);
+        }
+        return $data->node->value;
     }
 
     /**
@@ -189,12 +203,19 @@ class Client
         $body = json_decode($response->getBody());
         
         if (isset($body->errorCode)) {
-            throw new KeyNotFoundException($body->message, $body->errorCode);
+            throw new EtcdException($body->message, $body->errorCode);
         }
         
         return $body;
     }
     
+    /**
+     * Removes the key if it is directory
+     * @param string $key
+     * @param boolean $recursive
+     * @return mixed
+     * @throws EtcdException
+     */
     public function rmdir($key, $recursive = false)
     {
         $query = array('dir' => 'true');
@@ -212,6 +233,79 @@ class Client
         );
         $response = $request->send();
         $body = json_decode($response->getBody());
+        if (isset($body->errorCode)) {
+            throw new EtcdException($body->message, $body->errorCode);
+        }
         return $body;
+    }
+    
+    /**
+     * Retrieve a directory
+     * @param string $key
+     * @param boolean $recursive
+     * @return mixed
+     * @throws KeyNotFoundException
+     */
+    public function listDir($key, $recursive = false)
+    {
+        $query = array();
+        if ($recursive === true) {
+            $query['recursive'] = 'true';
+        }
+        $request = $this->guzzleclient->get(
+            $this->buildKeyUri($key),
+            null,
+            array(
+                'query' => $query
+            )
+        );
+        $response = $request->send();
+        $body = json_decode($response->getBody(true));
+        if (isset($body->errorCode)) {
+            throw new KeyNotFoundException($body->message, $body->errorCode);
+        }
+
+        return $body;
+    }
+
+    /**
+     * Retrieve a directories key
+     * @param string $key
+     * @param boolean $recursive
+     * @return array
+     * @throws EtcdException
+     */
+    public function ls($key, $recursive = false)
+    {
+        try {
+            $data = $this->listDir($key, $recursive);
+        } catch (EtcdException $e) {
+            throw $e;
+        }
+        
+        $iterator = new RecursiveArrayIterator($data);
+        return $this->traversalDir($iterator);
+    }
+
+    private $dirs = array();
+    
+    /**
+     * Traversal the directory to get the keys.
+     * @param RecursiveArrayIterator $iterator
+     * @return array
+     */
+    private function traversalDir(RecursiveArrayIterator $iterator)
+    {
+        while ($iterator->valid()) {
+            if ($iterator->hasChildren()) {
+                $this->traversalDir($iterator->getChildren());
+            } else {
+                if ($iterator->key() == 'key' && ($iterator->current() != '/')) {
+                    $this->dirs[] = $iterator->current();
+                }
+            }
+            $iterator->next();
+        }
+        return $this->dirs;
     }
 }
