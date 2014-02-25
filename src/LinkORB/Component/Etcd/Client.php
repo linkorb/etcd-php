@@ -6,6 +6,7 @@ use Guzzle\Http\Client as GuzzleClient;
 use LinkORB\Component\Etcd\Exception\EtcdException;
 use LinkORB\Component\Etcd\Exception\KeyExistsException;
 use LinkORB\Component\Etcd\Exception\KeyNotFoundException;
+use RecursiveArrayIterator;
 use stdClass;
 
 class Client
@@ -245,7 +246,7 @@ class Client
      * @return mixed
      * @throws KeyNotFoundException
      */
-    public function ls($key, $recursive = false)
+    public function listDir($key, $recursive = false)
     {
         $query = array();
         if ($recursive === true) {
@@ -263,6 +264,48 @@ class Client
         if (isset($body->errorCode)) {
             throw new KeyNotFoundException($body->message, $body->errorCode);
         }
+
         return $body;
+    }
+
+    /**
+     * Retrieve a directories key
+     * @param string $key
+     * @param boolean $recursive
+     * @return array
+     * @throws EtcdException
+     */
+    public function ls($key, $recursive = false)
+    {
+        try {
+            $data = $this->listDir($key, $recursive);
+        } catch (EtcdException $e) {
+            throw $e;
+        }
+        
+        $iterator = new RecursiveArrayIterator($data);
+        return $this->traversalDir($iterator);
+    }
+
+    private $dirs = array();
+    
+    /**
+     * Traversal the directory to get the keys.
+     * @param RecursiveArrayIterator $iterator
+     * @return array
+     */
+    private function traversalDir(RecursiveArrayIterator $iterator)
+    {
+        while ($iterator->valid()) {
+            if ($iterator->hasChildren()) {
+                $this->traversalDir($iterator->getChildren());
+            } else {
+                if ($iterator->key() == 'key' && ($iterator->current() != '/')) {
+                    $this->dirs[] = $iterator->current();
+                }
+            }
+            $iterator->next();
+        }
+        return $this->dirs;
     }
 }

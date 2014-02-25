@@ -45,7 +45,7 @@ class EtcdLsCommand extends Command
         $recursive = $input->getOption('recursive');
         $client = new EtcdClient($server);
         $data = $client->ls($key, ($recursive === 'true'));
-        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        echo $json;
+        print_r($data);
+        exit;
     }
 }
