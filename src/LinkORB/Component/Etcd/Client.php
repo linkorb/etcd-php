@@ -25,7 +25,7 @@ class Client
             $this->server = $server;
         }
         
-        echo 'Testing server ' . $this->server . PHP_EOL;
+        // echo 'Testing server ' . $this->server . PHP_EOL;
          
         $this->apiversion = $version;
         $this->guzzleclient = new GuzzleClient(
@@ -53,6 +53,11 @@ class Client
     }
 
 
+    /**
+     * Do a server request
+     * @param string $uri
+     * @return mixed
+     */
     public function doRequest($uri)
     {
         $request = $this->guzzleclient->get($uri);
@@ -100,8 +105,7 @@ class Client
         if (isset($data->errorCode)) {
             throw new KeyNotFoundException($data->message, $data->errorCode);
         }
-        
-        return $data;
+        return $data->node->value;
     }
 
     /**
@@ -204,6 +208,13 @@ class Client
         return $body;
     }
     
+    /**
+     * Removes the key if it is directory
+     * @param string $key
+     * @param boolean $recursive
+     * @return mixed
+     * @throws EtcdException
+     */
     public function rmdir($key, $recursive = false)
     {
         $query = array('dir' => 'true');
@@ -227,6 +238,13 @@ class Client
         return $body;
     }
     
+    /**
+     * Retrieve a directory
+     * @param string $key
+     * @param boolean $recursive
+     * @return mixed
+     * @throws KeyNotFoundException
+     */
     public function ls($key, $recursive = false)
     {
         $query = array();

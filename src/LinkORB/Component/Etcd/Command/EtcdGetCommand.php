@@ -37,8 +37,12 @@ class EtcdGetCommand extends Command
         echo "Getting `$key` on `$server`\n";
         $client = new EtcdClient($server);
         $data = $client->get($key);
-
+        
+        $output->writeln($data);
+        
+        /*
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         echo $json;
+        */
     }
 }
