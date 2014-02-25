@@ -16,7 +16,7 @@ class EtcdMkdirCommand extends Command
         $this
             ->setName('etcd:mkdir')
             ->setDescription(
-                'make a new directory'
+                'Make a new directory'
             )->addArgument(
                 'key',
                 InputArgument::REQUIRED,

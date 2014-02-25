@@ -3,6 +3,7 @@
 namespace LinkORB\Component\Etcd;
 
 use Guzzle\Http\Client as GuzzleClient;
+use LinkORB\Component\Etcd\Exception\EtcdException;
 use LinkORB\Component\Etcd\Exception\KeyExistsException;
 use LinkORB\Component\Etcd\Exception\KeyNotFoundException;
 use stdClass;
@@ -44,6 +45,9 @@ class Client
      */
     private function buildKeyUri($key)
     {
+        if (strpos('/', $key) === false) {
+            $key = '/' . $key;
+        }
         $uri = '/' . $this->apiversion . '/keys' . $key;
         return $uri;
     }
@@ -91,7 +95,12 @@ class Client
     {
         $request = $this->guzzleclient->get($this->buildKeyUri($key));
         $response = $request->send();
+        
         $data = json_decode($response->getBody());
+        if (isset($data->errorCode)) {
+            throw new KeyNotFoundException($data->message, $data->errorCode);
+        }
+        
         return $data;
     }
 
@@ -189,7 +198,7 @@ class Client
         $body = json_decode($response->getBody());
         
         if (isset($body->errorCode)) {
-            throw new KeyNotFoundException($body->message, $body->errorCode);
+            throw new EtcdException($body->message, $body->errorCode);
         }
         
         return $body;
@@ -212,6 +221,30 @@ class Client
         );
         $response = $request->send();
         $body = json_decode($response->getBody());
+        if (isset($body->errorCode)) {
+            throw new EtcdException($body->message, $body->errorCode);
+        }
+        return $body;
+    }
+    
+    public function ls($key, $recursive = false)
+    {
+        $query = array();
+        if ($recursive === true) {
+            $query['recursive'] = 'true';
+        }
+        $request = $this->guzzleclient->get(
+            $this->buildKeyUri($key),
+            null,
+            array(
+                'query' => $query
+            )
+        );
+        $response = $request->send();
+        $body = json_decode($response->getBody(true));
+        if (isset($body->errorCode)) {
+            throw new KeyNotFoundException($body->message, $body->errorCode);
+        }
         return $body;
     }
 }

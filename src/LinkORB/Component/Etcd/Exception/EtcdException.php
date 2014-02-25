@@ -2,12 +2,14 @@
 
 namespace LinkORB\Component\Etcd\Exception;
 
+use Exception;
+
 /**
- * Description of KeyNotFoundException
+ * Description of KeyExistsException
  *
  * @author Cong Peijun <p.cong@linkorb.com>
  */
-class KeyNotFoundException extends EtcdException
+class EtcdException extends Exception
 {
     
 }

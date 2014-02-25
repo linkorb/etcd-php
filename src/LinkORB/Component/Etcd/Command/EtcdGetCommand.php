@@ -6,12 +6,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-
 use LinkORB\Component\Etcd\Client as EtcdClient;
-
 
 class EtcdGetCommand extends Command
 {
+
     protected function configure()
     {
         $this
@@ -20,14 +19,14 @@ class EtcdGetCommand extends Command
                 'Get a key'
             )
             ->addArgument(
-                'server',
-                InputArgument::REQUIRED,
-                'Base url of etcd server'
-            )
-            ->addArgument(
                 'key',
                 InputArgument::REQUIRED,
                 'Key to set'
+            )->addArgument(
+                'server',
+                InputArgument::OPTIONAL,
+                'Base url of etcd server',
+                'http://127.0.0.1:4001'
             );
     }
 
@@ -39,10 +38,7 @@ class EtcdGetCommand extends Command
         $client = new EtcdClient($server);
         $data = $client->get($key);
 
-        $json = json_encode($data, JSON_PRETTY_PRINT);
+        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         echo $json;
-
-
-
     }
 }

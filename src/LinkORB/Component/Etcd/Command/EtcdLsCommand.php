@@ -9,35 +9,32 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class EtcdSetCommand extends Command
+class EtcdLsCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('etcd:set')
+            ->setName('etcd:ls')
             ->setDescription(
-                'Set a key'
+                'Retrieve a directory'
             )
             ->addArgument(
                 'key',
-                InputArgument::REQUIRED,
-                'Key to set'
-            )
-            ->addArgument(
-                'value',
-                InputArgument::REQUIRED,
-                'Value to set'
+                InputArgument::OPTIONAL,
+                'Key to set',
+                '/'
             )
             ->addArgument(
                 'server',
                 InputArgument::OPTIONAL,
-                'Base url of etcd server'
+                'Base url of etcd server and the default is http://127.0.0.1:4001'
             )
             ->addOption(
-                'ttl',
+                'recursive',
                 null,
                 InputOption::VALUE_OPTIONAL,
-                0
+                'returns all values for key and child keys',
+                'false'
             );
     }
 
@@ -45,12 +42,9 @@ class EtcdSetCommand extends Command
     {
         $server = $input->getArgument('server');
         $key = $input->getArgument('key');
-        $value = $input->getArgument('value');
-        $ttl = $input->getOption('ttl');
-        echo "Setting `$key` to `$value`\n";
+        $recursive = $input->getOption('recursive');
         $client = new EtcdClient($server);
-        $data = $client->set($key, $value, $ttl);
-
+        $data = $client->ls($key, ($recursive === 'true'));
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         echo $json;
     }

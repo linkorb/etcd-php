@@ -16,4 +16,5 @@ $application->add(new \LinkORB\Component\Etcd\Command\EtcdUpdateCommand());
 $application->add(new \LinkORB\Component\Etcd\Command\EtcdRmCommand());
 $application->add(new \LinkORB\Component\Etcd\Command\EtcdMkdirCommand());
 $application->add(new \LinkORB\Component\Etcd\Command\EtcdRmdirCommand());
+$application->add(new \LinkORB\Component\Etcd\Command\EtcdLsCommand());
 $application->run();
