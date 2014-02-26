@@ -1,0 +1,8 @@
+#!/bin/bash
+
+wget -c https://go.googlecode.com/files/go1.2.linux-amd64.tar.gz
+tar -zxf go1.2.linux-amd64.tar.gz
+git clone https://github.com/coreos/etcd
+export GOROOT=$PWD/go
+export PATH=$GOROOT/bin:$PATH
+cd etcd && ./build
