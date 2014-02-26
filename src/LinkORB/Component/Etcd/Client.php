@@ -17,6 +17,8 @@ class Client
     
     private $apiversion;
 
+    private $root = '/';
+    
     public function __construct($server = '', $version = 'v2')
     {
         
@@ -40,6 +42,20 @@ class Client
     }
 
     /**
+     * Set the default root directory. the default is `/`
+     * @param string $root
+     * @return Client
+     */
+    public function setRoot($root)
+    {
+        if (strpos('/', $root) === false) {
+            $root = '/' . $root;
+        }
+        $this->root = rtrim($root, '/');
+        return $this;
+    }
+
+    /**
      * Build key space operations
      * @param type $key
      * @return string
@@ -49,7 +65,7 @@ class Client
         if (strpos('/', $key) === false) {
             $key = '/' . $key;
         }
-        $uri = '/' . $this->apiversion . '/keys' . $key;
+        $uri = '/' . $this->apiversion . '/keys' . $this->root . $key;
         return $uri;
     }
 
@@ -246,7 +262,7 @@ class Client
      * @return mixed
      * @throws KeyNotFoundException
      */
-    public function listDir($key, $recursive = false)
+    public function listDir($key = '/', $recursive = false)
     {
         $query = array();
         if ($recursive === true) {
@@ -275,7 +291,7 @@ class Client
      * @return array
      * @throws EtcdException
      */
-    public function ls($key, $recursive = false)
+    public function ls($key = '/', $recursive = false)
     {
         try {
             $data = $this->listDir($key, $recursive);
