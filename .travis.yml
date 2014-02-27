@@ -1,0 +1,12 @@
+language: php
+before_install:
+  bash bin/build_etcd
+php:
+  - 5.4
+  - 5.5
+  - hhvm
+before_script:
+   - sudo apt-get install openssl
+   - composer install
+script: 
+  vendor/bin/phpunit
