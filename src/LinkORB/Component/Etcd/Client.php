@@ -43,6 +43,14 @@ class Client
 
     /**
      * Set the default root directory. the default is `/`
+     * If the root is others e.g. /linkorb when you set new key,
+     * or set dir, all of the key is under the root 
+     * e.g.  
+     * <code>
+     *    $client->setRoot('/linkorb');
+     *    $client->set('key1, 'value1'); 
+     *    // the new key is /linkorb/key1
+     * </code>
      * @param string $root
      * @return Client
      */
@@ -110,7 +118,7 @@ class Client
     /**
      * Retrieve the value of a key
      * @param string $key
-     * @param type $flags
+     * @param array $flags
      * @return stdClass
      */
     public function get($key, $flags = null)
@@ -200,9 +208,40 @@ class Client
         return $body;
     }
     
-    public function updatedir()
+    /**
+     * Update directory
+     * @param string $key
+     * @param int $ttl
+     * @return mixe
+     * @throws EtcdException
+     */
+    public function updateDir($key, $ttl)
     {
-        // TODO:
+        if (!$ttl) {
+            throw new EtcdException('TTL is required', 204);
+        }
+        
+        $condition = array(
+            'dir' => 'true',
+            'prevExist' => 'true'
+        );
+        
+        $request = $this->guzzleclient->put(
+            $this->buildKeyUri($key),
+            null,
+            array(
+                'ttl' => (int) $ttl
+            ),
+            array(
+                'query' => $condition
+            )
+        );
+        $response = $request->send();
+        $body = json_decode($response->getBody());
+        if (isset($body->errorCode)) {
+            throw new EtcdException($body->message, $body->errorCode);
+        }
+        return $body;
     }
 
 

@@ -104,14 +104,14 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers LinkORB\Component\Etcd\Client::updatedir
-     * @todo   Implement testUpdatedir().
      */
     public function testUpdatedir()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $dirname = '/test_updatedir';
+        $this->client->mkdir($dirname);
+        $this->client->updateDir($dirname, 10);
+        $dir = $this->client->listDir($dirname);
+        $this->assertLessThanOrEqual(10, $dir->node->ttl);
     }
 
     /**
