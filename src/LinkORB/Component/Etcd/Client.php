@@ -118,12 +118,23 @@ class Client
     /**
      * Retrieve the value of a key
      * @param string $key
-     * @param array $flags
+     * @param array $flags the extra query params
      * @return stdClass
      */
-    public function get($key, $flags = null)
+    public function get($key, array $flags = null)
     {
-        $request = $this->guzzleclient->get($this->buildKeyUri($key));
+        $query = array();
+        if ($flags) {
+            $query = array(
+                'query' => $flags
+            );
+        }
+        
+        $request = $this->guzzleclient->get(
+            $this->buildKeyUri($key),
+            null,
+            $query
+        );
         $response = $request->send();
         
         $data = json_decode($response->getBody());
@@ -344,6 +355,9 @@ class Client
 
     private $dirs = array();
     
+    private $values = array();
+
+
     /**
      * Traversal the directory to get the keys.
      * @param RecursiveArrayIterator $iterator
@@ -351,16 +365,34 @@ class Client
      */
     private function traversalDir(RecursiveArrayIterator $iterator)
     {
+        $key = '';
         while ($iterator->valid()) {
             if ($iterator->hasChildren()) {
                 $this->traversalDir($iterator->getChildren());
             } else {
                 if ($iterator->key() == 'key' && ($iterator->current() != '/')) {
-                    $this->dirs[] = $iterator->current();
+                    $this->dirs[] = $key = $iterator->current();
+                }
+                
+                if ($iterator->key() == 'value') {
+                    $this->values[$key] = $iterator->current();
                 }
             }
             $iterator->next();
         }
         return $this->dirs;
+    }
+    
+    /**
+     * Get all key-value pair that the key is not directry.
+     * @param type $key
+     * @return array
+     */
+    public function getKeysValue($key = null)
+    {
+        if (isset($this->values[$key])) {
+            return $this->values[$key];
+        }
+        return $this->values;
     }
 }

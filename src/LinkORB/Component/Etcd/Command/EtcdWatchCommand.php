@@ -9,42 +9,57 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class EtcdRmdirCommand extends Command
+class EtcdWatchCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('etcd:rmdir')
+            ->setName('etcd:watch')
             ->setDescription(
-                'Removes the key if it is an empty directory or a key-value pair'
+                'Watch a key for changes'
             )
             ->addArgument(
                 'key',
                 InputArgument::REQUIRED,
-                'Key to remove'
+                'Key to set'
             )
             ->addArgument(
                 'server',
                 InputArgument::OPTIONAL,
                 'Base url of etcd server and the default is http://127.0.0.1:4001'
-            )
-            ->addOption(
+            )->addOption(
                 'recursive',
                 null,
-                InputOption::VALUE_NONE,
-                'To delete a directory that holds keys'
+                InputOption::VALUE_NONE
+            )->addOption(
+                'after-index',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'watch after the given index',
+                0
             );
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $recursive = $input->getOption('recursive');
         $server = $input->getArgument('server');
         $key = $input->getArgument('key');
-        $recursive = $input->getOption('recursive');
-        $output->writeln("<info>Removing key `$key`</info>");
+        $afterIndex = $input->getOption('after-index');
+        $output->writeln("<info>Watching key `$key`</info>");
         $client = new EtcdClient($server);
-        $data = $client->rmdir($key, $recursive);
-        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        echo $json;
+        
+        $query = array('wait' => 'true');
+        
+        if ($recursive) {
+            $query['recursive'] = 'true';
+        }
+        
+        if ($afterIndex) {
+            $query['waitIndex'] = $afterIndex;
+        }
+        
+        $data = $client->get($key, $query);
+        $output->writeln($data);
     }
 }

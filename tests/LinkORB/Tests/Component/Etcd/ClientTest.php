@@ -152,4 +152,19 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $dirs = $this->client->ls();
         $this->assertTrue(in_array($this->dirname, $dirs));
     }
+    
+    /**
+     * @covers LinkORB\Component\Etcd\Client::getKeysValue
+     */
+    
+    public function testGetKeysValue()
+    {
+        $this->client->set('/a/aa', 'a_a');
+        $this->client->set('/a/ab', 'a_b');
+        $this->client->set('/a/b/ab', 'aa_b');
+        $ab = $this->client->ls('/', true);
+        $values = $this->client->getKeysValue();
+        $this->assertEquals('a_a', $values[$this->dirname . '/a/aa']);
+        $this->assertTrue(in_array('aa_b', $values));
+    }
 }
