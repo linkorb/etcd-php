@@ -120,8 +120,9 @@ class Client
      * @param string $key
      * @param array $flags the extra query params
      * @return stdClass
+     * @throws KeyNotFoundException
      */
-    public function get($key, array $flags = null)
+    public function getNode($key, array $flags = null)
     {
         $query = array();
         if ($flags) {
@@ -141,7 +142,23 @@ class Client
         if (isset($data->errorCode)) {
             throw new KeyNotFoundException($data->message, $data->errorCode);
         }
-        return $data->node->value;
+        return $data->node;
+    }
+    
+    /**
+     * Retrieve the value of a key
+     * @param string $key
+     * @param array $flags the extra query params
+     * @return string the value of the key.
+     * @throws KeyNotFoundException
+     */
+    public function get($key, array $flags = null)
+    {
+        try {
+            return $this->getNode($key, $flags)->value;
+        } catch (KeyNotFoundException $ex) {
+            throw $ex;
+        }
     }
 
     /**
@@ -207,12 +224,18 @@ class Client
      * @param strint $key
      * @param string $value
      * @param int $ttl
+     * @param array $condition The extra condition for updating
      * @return stdClass
      * @throws KeyNotFoundException
      */
-    public function update($key, $value, $ttl = 0)
+    public function update($key, $value, $ttl = 0, $condition = array())
     {
-        $body = $this->set($key, $value, $ttl, array('prevExist' => 'true'));
+        $extra = array('prevExist' => 'true');
+        
+        if ($condition) {
+            $extra = array_merge($extra, $condition);
+        }
+        $body = $this->set($key, $value, $ttl, $extra);
         if (isset($body->errorCode)) {
             throw new KeyNotFoundException($body->message, $body->errorCode);
         }

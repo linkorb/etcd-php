@@ -40,7 +40,6 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers LinkORB\Component\Etcd\Client::set
-     * @expectedException LinkORB\Component\Etcd\Exception\KeyNotFoundException
      */
     public function testSet()
     {
@@ -49,9 +48,10 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('setvalue', $value);
         
         // test ttl
-        $this->client->set('testttl', 'ttlvalue', 1);
-        sleep(2);
-        $value = $this->client->get('testttl');
+        $ttl = 10;
+        $b = $this->client->set('testttl', 'ttlvalue', $ttl);
+        $node = $this->client->getNode('testttl');
+        $this->assertLessThanOrEqual($ttl, $node->ttl);
     }
 
     /**
@@ -166,5 +166,13 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $values = $this->client->getKeysValue();
         $this->assertEquals('a_a', $values[$this->dirname . '/a/aa']);
         $this->assertTrue(in_array('aa_b', $values));
+    }
+    
+    public function testGetNode()
+    {
+        $key = 'node_key';
+        $setdata = $this->client->set($key, 'node_value');
+        $node = $this->client->getNode($key);
+        $this->assertJsonStringEqualsJsonString(json_encode($node), json_encode($setdata->node));
     }
 }
