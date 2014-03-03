@@ -111,7 +111,7 @@ class Client
             'query' => $condition
         ));
         $response = $request->send();
-        $body = json_decode($response->getBody());
+        $body = $response->json();
         return $body;
     }
 
@@ -119,7 +119,7 @@ class Client
      * Retrieve the value of a key
      * @param string $key
      * @param array $flags the extra query params
-     * @return stdClass
+     * @return array
      * @throws KeyNotFoundException
      */
     public function getNode($key, array $flags = null)
@@ -137,12 +137,11 @@ class Client
             $query
         );
         $response = $request->send();
-        
-        $data = json_decode($response->getBody());
-        if (isset($data->errorCode)) {
-            throw new KeyNotFoundException($data->message, $data->errorCode);
+        $body = $response->json();
+        if (isset($body['errorCode'])) {
+            throw new KeyNotFoundException($body['message'], $body['errorCode']);
         }
-        return $data->node;
+        return $body['node'];
     }
     
     /**
@@ -155,7 +154,8 @@ class Client
     public function get($key, array $flags = null)
     {
         try {
-            return $this->getNode($key, $flags)->value;
+            $node = $this->getNode($key, $flags);
+            return $node['value'];
         } catch (KeyNotFoundException $ex) {
             throw $ex;
         }
@@ -179,8 +179,8 @@ class Client
             array('prevExist' => 'false')
         );
         
-        if (isset($body->errorCode)) {
-            throw new KeyExistsException($body->message, $body->errorCode);
+        if (isset($body['errorCode'])) {
+            throw new KeyExistsException($body['message'], $body['errorCode']);
         }
         
         return $body;
@@ -211,9 +211,9 @@ class Client
         );
         
         $response = $request->send();
-        $body = json_decode($response->getBody());
-        if (isset($body->errorCode)) {
-            throw new KeyExistsException($body->message, $body->errorCode);
+        $body = $response->json();
+        if (isset($body['errorCode'])) {
+            throw new KeyExistsException($body['message'], $body['errorCode']);
         }
         return $body;
     }
@@ -236,8 +236,8 @@ class Client
             $extra = array_merge($extra, $condition);
         }
         $body = $this->set($key, $value, $ttl, $extra);
-        if (isset($body->errorCode)) {
-            throw new KeyNotFoundException($body->message, $body->errorCode);
+        if (isset($body['errorCode'])) {
+            throw new KeyNotFoundException($body['message'], $body['errorCode']);
         }
         return $body;
     }
@@ -271,9 +271,9 @@ class Client
             )
         );
         $response = $request->send();
-        $body = json_decode($response->getBody());
-        if (isset($body->errorCode)) {
-            throw new EtcdException($body->message, $body->errorCode);
+        $body = $response->json();
+        if (isset($body['errorCode'])) {
+            throw new EtcdException($body['message'], $body['errorCode']);
         }
         return $body;
     }
@@ -289,10 +289,10 @@ class Client
     {
         $request = $this->guzzleclient->delete($this->buildKeyUri($key));
         $response = $request->send();
-        $body = json_decode($response->getBody());
+        $body = $response->json();
         
-        if (isset($body->errorCode)) {
-            throw new EtcdException($body->message, $body->errorCode);
+        if (isset($body['errorCode'])) {
+            throw new EtcdException($body['message'], $body['errorCode']);
         }
         
         return $body;
@@ -321,9 +321,9 @@ class Client
             )
         );
         $response = $request->send();
-        $body = json_decode($response->getBody());
-        if (isset($body->errorCode)) {
-            throw new EtcdException($body->message, $body->errorCode);
+        $body = $response->json();
+        if (isset($body['errorCode'])) {
+            throw new EtcdException($body['message'], $body['errorCode']);
         }
         return $body;
     }
@@ -349,9 +349,9 @@ class Client
             )
         );
         $response = $request->send();
-        $body = json_decode($response->getBody(true));
-        if (isset($body->errorCode)) {
-            throw new KeyNotFoundException($body->message, $body->errorCode);
+        $body = $response->json();
+        if (isset($body['errorCode'])) {
+            throw new KeyNotFoundException($body['message'], $body['errorCode']);
         }
 
         return $body;

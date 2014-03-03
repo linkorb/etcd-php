@@ -51,7 +51,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $ttl = 10;
         $b = $this->client->set('testttl', 'ttlvalue', $ttl);
         $node = $this->client->getNode('testttl');
-        $this->assertLessThanOrEqual($ttl, $node->ttl);
+        $this->assertLessThanOrEqual($ttl, $node['ttl']);
     }
 
     /**
@@ -111,7 +111,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $this->client->mkdir($dirname);
         $this->client->updateDir($dirname, 10);
         $dir = $this->client->listDir($dirname);
-        $this->assertLessThanOrEqual(10, $dir->node->ttl);
+        $this->assertLessThanOrEqual(10, $dir['node']['ttl']);
     }
 
     /**
@@ -140,8 +140,8 @@ class ClientTest extends PHPUnit_Framework_TestCase
     public function testListDir()
     {
         $data = $this->client->listDir();
-        $this->assertEquals($this->dirname, $data->node->key);
-        $this->assertTrue($data->node->dir == 1);
+        $this->assertEquals($this->dirname, $data['node']['key']);
+        $this->assertTrue($data['node']['dir'] == 1);
     }
 
     /**
@@ -173,6 +173,6 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $key = 'node_key';
         $setdata = $this->client->set($key, 'node_value');
         $node = $this->client->getNode($key);
-        $this->assertJsonStringEqualsJsonString(json_encode($node), json_encode($setdata->node));
+        $this->assertJsonStringEqualsJsonString(json_encode($node), json_encode($setdata['node']));
     }
 }
