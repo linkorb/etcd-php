@@ -24,5 +24,6 @@
             "LinkORB\\": "src/"
         }
     },
+    "bin": ["bin/etcd-php"],
     "license": "MIT"
 }
