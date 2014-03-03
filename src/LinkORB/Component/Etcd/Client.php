@@ -411,8 +411,9 @@ class Client
      * @param type $key
      * @return array
      */
-    public function getKeysValue($key = null)
+    public function getKeysValue($root = '/', $key = null)
     {
+        $this->ls($root, true);
         if (isset($this->values[$key])) {
             return $this->values[$key];
         }
