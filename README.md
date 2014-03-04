@@ -1,4 +1,3 @@
-
 [![Build Status](https://travis-ci.org/linkorb/etcd-php.png?branch=master)](https://travis-ci.org/linkorb/etcd-php)
 [![Latest Stable Version](https://poser.pugx.org/linkorb/etcd-php/v/stable.png)](https://packagist.org/packages/linkorb/etcd-php)
 [![Total Downloads](https://poser.pugx.org/linkorb/etcd-php/downloads.png)](https://packagist.org/packages/linkorb/etcd-php)
@@ -18,3 +17,9 @@ This repository provides a client library for etcd for PHP applications.
     ./build
     ./bin/etcd
     
+
+## Brought to you by the LinkORB Engineering team
+
+Check out our other projects at [linkorb.com/engineering](http://www.linkorb.com/engineering).
+
+Btw, we're hiring!
