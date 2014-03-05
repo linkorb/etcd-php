@@ -408,12 +408,14 @@ class Client
     
     /**
      * Get all key-value pair that the key is not directry.
-     * @param type $key
+     * @param string $key
+     * @param boolean $recursive
+     * @param string $key
      * @return array
      */
-    public function getKeysValue($root = '/', $key = null)
+    public function getKeysValue($root = '/', $recursive = true, $key = null)
     {
-        $this->ls($root, true);
+        $this->ls($root, $recursive);
         if (isset($this->values[$key])) {
             return $this->values[$key];
         }

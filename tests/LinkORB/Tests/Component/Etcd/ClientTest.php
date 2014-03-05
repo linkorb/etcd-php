@@ -162,8 +162,12 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $this->client->set('/a/aa', 'a_a');
         $this->client->set('/a/ab', 'a_b');
         $this->client->set('/a/b/ab', 'aa_b');
-        $ab = $this->client->ls('/', true);
+        
+        $values = $this->client->getKeysValue('/', false);
+        $this->assertFalse(isset($values[$this->dirname . '/a/aa']));
+        
         $values = $this->client->getKeysValue();
+        $this->assertTrue(isset($values[$this->dirname . '/a/aa']));
         $this->assertEquals('a_a', $values[$this->dirname . '/a/aa']);
         $this->assertTrue(in_array('aa_b', $values));
     }
