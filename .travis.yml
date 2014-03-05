@@ -7,7 +7,3 @@ php:
 before_script:
 - composer install
 script: vendor/bin/phpunit
-notifications:
-  hipchat:
-    rooms:
-      secure: FXa4QLUtRYY2tO5a5hkCgf+RhUk25IaOqaqDPV23+LiscwdRGI8I73AEl2g30Yv2pkztBgsqohya94b8kRZbOE771R8iWEeGCjBwF6a2D2kFS0d3Zt5mQQLrebkGaWLRljWv/4AtNjdN2I5zQI4YP2uYf9NSi2i7JGg0sCDfHCc=
