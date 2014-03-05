@@ -65,7 +65,7 @@ class Client
 
     /**
      * Build key space operations
-     * @param type $key
+     * @param string $key
      * @return string
      */
     private function buildKeyUri($key)
@@ -167,7 +167,7 @@ class Client
      * @param string $key
      * @param string $value
      * @param int $ttl
-     * @return array|stdClass
+     * @return array $body
      * @throws KeyExistsException
      */
     public function mk($key, $value, $ttl = 0)
@@ -191,7 +191,7 @@ class Client
      * 
      * @param string $key
      * @param int $ttl
-     * @return stdClass
+     * @return array $body
      * @throws KeyExistsException
      */
     public function mkdir($key, $ttl = 0)
@@ -225,7 +225,7 @@ class Client
      * @param string $value
      * @param int $ttl
      * @param array $condition The extra condition for updating
-     * @return stdClass
+     * @return array $body
      * @throws KeyNotFoundException
      */
     public function update($key, $value, $ttl = 0, $condition = array())
@@ -246,7 +246,7 @@ class Client
      * Update directory
      * @param string $key
      * @param int $ttl
-     * @return mixe
+     * @return array $body
      * @throws EtcdException
      */
     public function updateDir($key, $ttl)

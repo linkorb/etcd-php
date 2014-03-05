@@ -34,10 +34,20 @@ Btw, we're hiring!
     $client->set('/foo', 'fooValue');
     // Set the ttl
     $client->set('/foo', 'fooValue', 10);
-
+    // get key value
     echo $clinet->get('/foo');
     
+    // Update value with key
+    $client->update('/foo', 'newFooValue');
+    
+    // Delete key
     $client->rm('/foo');
+
+    // Create a directory
+    $client->mkdir('/fooDir');
+    // Remove dir
+    $client->rmdir('/fooDir');
+    
 ```
 
 ### The command line tool
