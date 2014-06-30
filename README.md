@@ -30,12 +30,12 @@ Btw, we're hiring!
 ### The client
 
 ```php
-    $client = new Clinet($server);
+    $client = new Client($server);
     $client->set('/foo', 'fooValue');
     // Set the ttl
     $client->set('/foo', 'fooValue', 10);
     // get key value
-    echo $clinet->get('/foo');
+    echo $client->get('/foo');
     
     // Update value with key
     $client->update('/foo', 'newFooValue');
