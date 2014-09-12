@@ -32,9 +32,8 @@ class EtcdLsCommand extends Command
             ->addOption(
                 'recursive',
                 null,
-                InputOption::VALUE_OPTIONAL,
-                'returns all values for key and child keys',
-                'false'
+                InputOption::VALUE_NONE,
+                'returns all values for key and child keys'
             );
     }
 
@@ -44,8 +43,7 @@ class EtcdLsCommand extends Command
         $key = $input->getArgument('key');
         $recursive = $input->getOption('recursive');
         $client = new EtcdClient($server);
-        $data = $client->ls($key, ($recursive === 'true'));
-        print_r($data);
-        exit;
+        $data = $client->ls($key, $recursive);
+        $output->writeln($data);
     }
 }

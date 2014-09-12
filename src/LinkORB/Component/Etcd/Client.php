@@ -17,6 +17,8 @@ class Client
     
     private $apiversion;
 
+    private $root = '/';
+    
     public function __construct($server = '', $version = 'v2')
     {
         
@@ -40,8 +42,30 @@ class Client
     }
 
     /**
+     * Set the default root directory. the default is `/`
+     * If the root is others e.g. /linkorb when you set new key,
+     * or set dir, all of the key is under the root 
+     * e.g.  
+     * <code>
+     *    $client->setRoot('/linkorb');
+     *    $client->set('key1, 'value1'); 
+     *    // the new key is /linkorb/key1
+     * </code>
+     * @param string $root
+     * @return Client
+     */
+    public function setRoot($root)
+    {
+        if (strpos('/', $root) === false) {
+            $root = '/' . $root;
+        }
+        $this->root = rtrim($root, '/');
+        return $this;
+    }
+
+    /**
      * Build key space operations
-     * @param type $key
+     * @param string $key
      * @return string
      */
     private function buildKeyUri($key)
@@ -49,7 +73,7 @@ class Client
         if (strpos('/', $key) === false) {
             $key = '/' . $key;
         }
-        $uri = '/' . $this->apiversion . '/keys' . $key;
+        $uri = '/' . $this->apiversion . '/keys' . $this->root . $key;
         return $uri;
     }
 
@@ -87,26 +111,54 @@ class Client
             'query' => $condition
         ));
         $response = $request->send();
-        $body = json_decode($response->getBody());
+        $body = $response->json();
         return $body;
     }
 
     /**
      * Retrieve the value of a key
      * @param string $key
-     * @param type $flags
-     * @return stdClass
+     * @param array $flags the extra query params
+     * @return array
+     * @throws KeyNotFoundException
      */
-    public function get($key, $flags = null)
+    public function getNode($key, array $flags = null)
     {
-        $request = $this->guzzleclient->get($this->buildKeyUri($key));
-        $response = $request->send();
-        
-        $data = json_decode($response->getBody());
-        if (isset($data->errorCode)) {
-            throw new KeyNotFoundException($data->message, $data->errorCode);
+        $query = array();
+        if ($flags) {
+            $query = array(
+                'query' => $flags
+            );
         }
-        return $data->node->value;
+        
+        $request = $this->guzzleclient->get(
+            $this->buildKeyUri($key),
+            null,
+            $query
+        );
+        $response = $request->send();
+        $body = $response->json();
+        if (isset($body['errorCode'])) {
+            throw new KeyNotFoundException($body['message'], $body['errorCode']);
+        }
+        return $body['node'];
+    }
+    
+    /**
+     * Retrieve the value of a key
+     * @param string $key
+     * @param array $flags the extra query params
+     * @return string the value of the key.
+     * @throws KeyNotFoundException
+     */
+    public function get($key, array $flags = null)
+    {
+        try {
+            $node = $this->getNode($key, $flags);
+            return $node['value'];
+        } catch (KeyNotFoundException $ex) {
+            throw $ex;
+        }
     }
 
     /**
@@ -115,7 +167,7 @@ class Client
      * @param string $key
      * @param string $value
      * @param int $ttl
-     * @return array|stdClass
+     * @return array $body
      * @throws KeyExistsException
      */
     public function mk($key, $value, $ttl = 0)
@@ -127,8 +179,8 @@ class Client
             array('prevExist' => 'false')
         );
         
-        if (isset($body->errorCode)) {
-            throw new KeyExistsException($body->message, $body->errorCode);
+        if (isset($body['errorCode'])) {
+            throw new KeyExistsException($body['message'], $body['errorCode']);
         }
         
         return $body;
@@ -139,7 +191,7 @@ class Client
      * 
      * @param string $key
      * @param int $ttl
-     * @return stdClass
+     * @return array $body
      * @throws KeyExistsException
      */
     public function mkdir($key, $ttl = 0)
@@ -159,9 +211,9 @@ class Client
         );
         
         $response = $request->send();
-        $body = json_decode($response->getBody());
-        if (isset($body->errorCode)) {
-            throw new KeyExistsException($body->message, $body->errorCode);
+        $body = $response->json();
+        if (isset($body['errorCode'])) {
+            throw new KeyExistsException($body['message'], $body['errorCode']);
         }
         return $body;
     }
@@ -172,21 +224,58 @@ class Client
      * @param strint $key
      * @param string $value
      * @param int $ttl
-     * @return stdClass
+     * @param array $condition The extra condition for updating
+     * @return array $body
      * @throws KeyNotFoundException
      */
-    public function update($key, $value, $ttl = 0)
+    public function update($key, $value, $ttl = 0, $condition = array())
     {
-        $body = $this->set($key, $value, $ttl, array('prevExist' => 'true'));
-        if (isset($body->errorCode)) {
-            throw new KeyNotFoundException($body->message, $body->errorCode);
+        $extra = array('prevExist' => 'true');
+        
+        if ($condition) {
+            $extra = array_merge($extra, $condition);
+        }
+        $body = $this->set($key, $value, $ttl, $extra);
+        if (isset($body['errorCode'])) {
+            throw new KeyNotFoundException($body['message'], $body['errorCode']);
         }
         return $body;
     }
     
-    public function updatedir()
+    /**
+     * Update directory
+     * @param string $key
+     * @param int $ttl
+     * @return array $body
+     * @throws EtcdException
+     */
+    public function updateDir($key, $ttl)
     {
-        // TODO:
+        if (!$ttl) {
+            throw new EtcdException('TTL is required', 204);
+        }
+        
+        $condition = array(
+            'dir' => 'true',
+            'prevExist' => 'true'
+        );
+        
+        $request = $this->guzzleclient->put(
+            $this->buildKeyUri($key),
+            null,
+            array(
+                'ttl' => (int) $ttl
+            ),
+            array(
+                'query' => $condition
+            )
+        );
+        $response = $request->send();
+        $body = $response->json();
+        if (isset($body['errorCode'])) {
+            throw new EtcdException($body['message'], $body['errorCode']);
+        }
+        return $body;
     }
 
 
@@ -200,10 +289,10 @@ class Client
     {
         $request = $this->guzzleclient->delete($this->buildKeyUri($key));
         $response = $request->send();
-        $body = json_decode($response->getBody());
+        $body = $response->json();
         
-        if (isset($body->errorCode)) {
-            throw new EtcdException($body->message, $body->errorCode);
+        if (isset($body['errorCode'])) {
+            throw new EtcdException($body['message'], $body['errorCode']);
         }
         
         return $body;
@@ -232,9 +321,9 @@ class Client
             )
         );
         $response = $request->send();
-        $body = json_decode($response->getBody());
-        if (isset($body->errorCode)) {
-            throw new EtcdException($body->message, $body->errorCode);
+        $body = $response->json();
+        if (isset($body['errorCode'])) {
+            throw new EtcdException($body['message'], $body['errorCode']);
         }
         return $body;
     }
@@ -246,7 +335,7 @@ class Client
      * @return mixed
      * @throws KeyNotFoundException
      */
-    public function listDir($key, $recursive = false)
+    public function listDir($key = '/', $recursive = false)
     {
         $query = array();
         if ($recursive === true) {
@@ -260,9 +349,9 @@ class Client
             )
         );
         $response = $request->send();
-        $body = json_decode($response->getBody(true));
-        if (isset($body->errorCode)) {
-            throw new KeyNotFoundException($body->message, $body->errorCode);
+        $body = $response->json();
+        if (isset($body['errorCode'])) {
+            throw new KeyNotFoundException($body['message'], $body['errorCode']);
         }
 
         return $body;
@@ -275,7 +364,7 @@ class Client
      * @return array
      * @throws EtcdException
      */
-    public function ls($key, $recursive = false)
+    public function ls($key = '/', $recursive = false)
     {
         try {
             $data = $this->listDir($key, $recursive);
@@ -289,6 +378,9 @@ class Client
 
     private $dirs = array();
     
+    private $values = array();
+
+
     /**
      * Traversal the directory to get the keys.
      * @param RecursiveArrayIterator $iterator
@@ -296,16 +388,37 @@ class Client
      */
     private function traversalDir(RecursiveArrayIterator $iterator)
     {
+        $key = '';
         while ($iterator->valid()) {
             if ($iterator->hasChildren()) {
                 $this->traversalDir($iterator->getChildren());
             } else {
                 if ($iterator->key() == 'key' && ($iterator->current() != '/')) {
-                    $this->dirs[] = $iterator->current();
+                    $this->dirs[] = $key = $iterator->current();
+                }
+                
+                if ($iterator->key() == 'value') {
+                    $this->values[$key] = $iterator->current();
                 }
             }
             $iterator->next();
         }
         return $this->dirs;
+    }
+    
+    /**
+     * Get all key-value pair that the key is not directry.
+     * @param string $key
+     * @param boolean $recursive
+     * @param string $key
+     * @return array
+     */
+    public function getKeysValue($root = '/', $recursive = true, $key = null)
+    {
+        $this->ls($root, $recursive);
+        if (isset($this->values[$key])) {
+            return $this->values[$key];
+        }
+        return $this->values;
     }
 }

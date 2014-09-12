@@ -9,30 +9,29 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class EtcdRmdirCommand extends Command
+class EtcdUpdateDirCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('etcd:rmdir')
+            ->setName('etcd:updatedir')
             ->setDescription(
-                'Removes the key if it is an empty directory or a key-value pair'
+                'Update an existing directory'
             )
             ->addArgument(
                 'key',
                 InputArgument::REQUIRED,
-                'Key to remove'
+                'Key to set'
             )
             ->addArgument(
                 'server',
                 InputArgument::OPTIONAL,
                 'Base url of etcd server and the default is http://127.0.0.1:4001'
-            )
-            ->addOption(
-                'recursive',
+            )->addOption(
+                'ttl',
                 null,
-                InputOption::VALUE_NONE,
-                'To delete a directory that holds keys'
+                InputOption::VALUE_OPTIONAL,
+                0
             );
     }
 
@@ -40,10 +39,11 @@ class EtcdRmdirCommand extends Command
     {
         $server = $input->getArgument('server');
         $key = $input->getArgument('key');
-        $recursive = $input->getOption('recursive');
-        $output->writeln("<info>Removing key `$key`</info>");
+        $ttl = $input->getOption('ttl');
+        $output->writeln("<info>Update ttl the dir with key `$key`</info>");
         $client = new EtcdClient($server);
-        $data = $client->rmdir($key, $recursive);
+        $data = $client->updateDir($key, $ttl);
+
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         echo $json;
     }

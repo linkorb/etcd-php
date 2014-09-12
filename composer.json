@@ -8,7 +8,7 @@
         {
             "name": "Joost Faassen",
             "email": "j.faassen@linkorb.com",
-    	    "role": "Development"
+            "role": "Development"
         }
     ],
     "require": {
@@ -16,10 +16,14 @@
         "symfony/console": "~2.4",
         "guzzle/guzzle": "~3.8"
     },
-    "autoload": {
-	"psr-0": {
-	    "LinkORB\\": "src/"
-	} 
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*"
     },
+    "autoload": {
+        "psr-0": {
+            "LinkORB\\": "src/"
+        }
+    },
+    "bin": ["bin/etcd-php"],
     "license": "MIT"
 }
