@@ -9,5 +9,4 @@ namespace LinkORB\Component\Etcd\Exception;
  */
 class KeyExistsException extends EtcdException
 {
-    
 }

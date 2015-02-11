@@ -10,7 +10,6 @@ use LinkORB\Component\Etcd\Client as EtcdClient;
 
 class EtcdRequestCommand extends Command
 {
-
     protected function configure()
     {
         $this

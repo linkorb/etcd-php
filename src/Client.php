@@ -21,7 +21,6 @@ class Client
     
     public function __construct($server = '', $version = 'v2')
     {
-        
         $server = rtrim($server, '/');
         
         if ($server) {
@@ -44,11 +43,11 @@ class Client
     /**
      * Set the default root directory. the default is `/`
      * If the root is others e.g. /linkorb when you set new key,
-     * or set dir, all of the key is under the root 
-     * e.g.  
+     * or set dir, all of the key is under the root
+     * e.g.
      * <code>
      *    $client->setRoot('/linkorb');
-     *    $client->set('key1, 'value1'); 
+     *    $client->set('key1, 'value1');
      *    // the new key is /linkorb/key1
      * </code>
      * @param string $root
@@ -163,7 +162,7 @@ class Client
 
     /**
      * make a new key with a given value
-     * 
+     *
      * @param string $key
      * @param string $value
      * @param int $ttl
@@ -188,7 +187,7 @@ class Client
 
     /**
      * make a new directory
-     * 
+     *
      * @param string $key
      * @param int $ttl
      * @return array $body

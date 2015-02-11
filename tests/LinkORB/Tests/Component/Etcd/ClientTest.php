@@ -7,7 +7,6 @@ use PHPUnit_Framework_TestCase;
 
 class ClientTest extends PHPUnit_Framework_TestCase
 {
-
     /**
      * @var Client
      */
@@ -20,7 +19,6 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $this->client = new Client();
         $this->client->mkdir($this->dirname);
         $this->client->setRoot($this->dirname);
-        
     }
 
     protected function tearDown()
