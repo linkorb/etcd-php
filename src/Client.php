@@ -283,7 +283,7 @@ class Client
      * remove a key
      * @param string $key
      * @return array|stdClass
-     * @throws KeyNotFoundException
+     * @throws EtcdException
      */
     public function rm($key)
     {
@@ -407,7 +407,7 @@ class Client
     }
     
     /**
-     * Get all key-value pair that the key is not directry.
+     * Get all key-value pair that the key is not directory.
      * @param string $key
      * @param boolean $recursive
      * @param string $key
