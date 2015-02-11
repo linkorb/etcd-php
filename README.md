@@ -12,11 +12,12 @@ This repository provides a client library for etcd for PHP applications.
 
 ## Installing and running etcd
 
-    git clone https://github.com/coreos/etcd
-    cd etcd
-    ./build
-    ./bin/etcd
-    
+```bash
+git clone https://github.com/coreos/etcd.git
+cd etcd
+./build
+./bin/etcd
+````
 
 ## Brought to you by the LinkORB Engineering team
 
@@ -56,37 +57,37 @@ Btw, we're hiring!
 
 Set a value on the `/foo/bar` key:
 
-```
+```bash
 $ bin/etcd-php etcd:set /foo/bar "Hello world"
 ```
 
 Set a value on the `/foo/bar` key with a value that expires in 60 seconds:
 
-```
+```bash
 $ bin/etcd-php etcd:set /foo/bar "Hello world" --ttl=60
 ```
 
 Create a new key `/foo/bar`, only if the key did not previously exist:
 
-```
+```bash
 $ bin/etcd-php etcd:mk /foo/new_bar "Hello world"
 ```
 
 Create a new dir `/fooDir`, only if the key did not previously exist:
 
-```
+```bash
 $ bin/etcd-php etcd:mkdir /fooDir
 ```
 
 Update an existing key `/foo/bar`, only if the key already existed:
 
-```
+```bash
 $ bin/etcd-php etcd:update /foo/bar "Hola mundo"
 ```
 
 Create or update a directory called `/mydir`:
 
-```
+```bash
 $ bin/etcd-php etcd:setDir /mydir
 ```
 
@@ -95,7 +96,7 @@ $ bin/etcd-php etcd:setDir /mydir
 
 Get the current value for a single key in the local etcd node:
 
-```
+```bash
 $ bin/etcd-php etcd:get /foo/bar
 ```
 
@@ -103,7 +104,7 @@ $ bin/etcd-php etcd:get /foo/bar
 
 Explore the keyspace using the `ls` command
 
-```
+```bash
 $ bin/etcd-php etcd:ls
 /akey
 /adir
@@ -114,7 +115,7 @@ $ bin/etcd-php etcd:ls /adir
 
 Add `-recursive` to recursively list subdirectories encountered.
 
-```
+```bash
 $ bin/etcd-php etcd:ls --recursive
 /foo
 /foo/bar
@@ -127,19 +128,19 @@ $ bin/etcd-php etcd:ls --recursive
 
 Delete a key:
 
-```
+```bash
 $ bin/etcd-php etcd:rm /foo/bar
 ```
 
 Delete an empty directory or a key-value pair
 
-```
+```bash
 $ bin/etcd-php etcd:rmdir /path/to/dir 
 ```
 
 Recursively delete a key and all child keys:
 
-```
+```bash
 $ bin/etcd-php etcd:rmdir /path/to/dir --recursive
 ```
 
@@ -147,6 +148,6 @@ $ bin/etcd-php etcd:rmdir /path/to/dir --recursive
 
 Watch for only the next change on a key:
 
-```
+```bash
 $ bin/etcd-php etcd:watch /foo/bar
 ```
