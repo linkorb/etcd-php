@@ -20,8 +20,8 @@
         "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
-        "psr-0": {
-            "LinkORB\\": "src/"
+        "psr-4": {
+            "LinkORB\\Component\\Etcd\\": "src/"
         }
     },
     "bin": ["bin/etcd-php"],
