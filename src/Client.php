@@ -420,4 +420,58 @@ class Client
         }
         return $this->values;
     }
+
+    /**
+     * create a new directory with auto generated id
+     *
+     * @param string $dir
+     * @param int $ttl
+     * @return array $body
+     */
+    public function mkdirWithInOrderKey($dir, $ttl = 0)
+    {
+        $data = array(
+            'dir' => 'true'
+        );
+
+        if ($ttl) {
+            $data['ttl'] = $ttl;
+        }
+        $request = $this->guzzleclient->post(
+            $this->buildKeyUri($dir),
+            null,
+            $data
+        );
+
+        $response = $request->send();
+        $body = $response->json();
+
+        return $body;
+    }
+
+    /**
+     * create a new key in a directory with auto generated id
+     *
+     * @param string $dir
+     * @param string $value
+     * @param int $ttl
+     * @param array $condition
+     * @return array $body
+     */
+    public function setWithInOrderKey($dir, $value, $ttl = 0, $condition = array())
+    {
+        $data = array('value' => $value);
+
+        if ($ttl) {
+            $data['ttl'] = $ttl;
+        }
+
+        $request = $this->guzzleclient->post($this->buildKeyUri($dir), null, $data, array(
+            'query' => $condition
+        ));
+        $response = $request->send();
+        $body = $response->json();
+        return $body;
+    }
+
 }
