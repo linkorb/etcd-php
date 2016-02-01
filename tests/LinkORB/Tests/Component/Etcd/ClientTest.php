@@ -33,7 +33,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
     public function testDoRequest()
     {
         $version = $this->client->doRequest('/version');
-        $this->assertArrayHasKey('releaseVersion', json_decode($version, true));
+        $this->assertArrayHasKey('etcdserver', json_decode($version, true));
     }
 
     /**
