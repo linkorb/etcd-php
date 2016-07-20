@@ -365,6 +365,9 @@ class Client
      */
     public function ls($key = '/', $recursive = false)
     {
+        $this->values = array();
+        $this->dirs = array();
+
         try {
             $data = $this->listDir($key, $recursive);
         } catch (EtcdException $e) {
