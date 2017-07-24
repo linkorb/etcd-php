@@ -11,7 +11,7 @@ use stdClass;
 
 class Client
 {
-    private $server = 'http://127.0.0.1:4001';
+    private $server = 'http://127.0.0.1:2379';
 
     private $guzzleclient;
     

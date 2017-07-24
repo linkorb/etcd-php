@@ -1,9 +1,14 @@
 language: php
+dist: trusty
 before_install: bash bin/build_etcd
 php:
-- 5.4
-- 5.5
-- hhvm
+  - '5.4'
+  - '5.5'
+  - '5.6'
+  - '7.0'
+  - '7.1'
+  - hhvm
+  - nightly
 before_script:
 - composer install
 script: vendor/bin/phpunit
