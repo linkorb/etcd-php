@@ -25,7 +25,7 @@ class EtcdGetCommand extends Command
                 'server',
                 InputArgument::OPTIONAL,
                 'Base url of etcd server',
-                'http://127.0.0.1:4001'
+                'http://127.0.0.1:2379'
             );
     }
 

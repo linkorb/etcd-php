@@ -26,7 +26,7 @@ class EtcdRmdirCommand extends Command
             ->addArgument(
                 'server',
                 InputArgument::OPTIONAL,
-                'Base url of etcd server and the default is http://127.0.0.1:4001'
+                'Base url of etcd server and the default is http://127.0.0.1:2379'
             )
             ->addOption(
                 'recursive',
