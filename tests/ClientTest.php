@@ -3,9 +3,9 @@
 namespace LinkORB\Tests\Component\Etcd;
 
 use LinkORB\Component\Etcd\Client;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ClientTest extends PHPUnit_Framework_TestCase
+class ClientTest extends TestCase
 {
     /**
      * @var Client
