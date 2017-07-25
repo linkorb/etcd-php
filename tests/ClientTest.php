@@ -3,9 +3,9 @@
 namespace LinkORB\Tests\Component\Etcd;
 
 use LinkORB\Component\Etcd\Client;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ClientTest extends PHPUnit_Framework_TestCase
+class ClientTest extends TestCase
 {
     /**
      * @var Client
@@ -28,12 +28,12 @@ class ClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers LinkORB\Component\Etcd\Client::doRequest
+     * @covers LinkORB\Component\Etcd\Client::getVersion
      */
-    public function testDoRequest()
+    public function testGetVersion()
     {
-        $version = $this->client->doRequest('/version');
-        $this->assertArrayHasKey('etcdserver', json_decode($version, true));
+        $version = $this->client->getVersion('/version');
+        $this->assertArrayHasKey('etcdserver', $version);
     }
 
     /**

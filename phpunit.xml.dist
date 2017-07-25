@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="./tests/bootstrap.php"
+<phpunit bootstrap="./vendor/autoload.php"
          colors="true"
          processIsolation="false"
          stopOnFailure="false"
@@ -10,7 +10,7 @@
 
     <testsuites>
         <testsuite>
-            <directory suffix="Test.php">./tests/LinkORB/Tests</directory>
+            <directory suffix="Test.php">./tests/</directory>
         </testsuite>
     </testsuites>
 

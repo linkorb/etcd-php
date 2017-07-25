@@ -21,7 +21,6 @@ require $loader;
 
 $application = new Application('Etcd Console Tool', '1.0.0');
 $application->setCatchExceptions(true);
-$application->add(new \LinkORB\Component\Etcd\Command\EtcdRequestCommand());
 $application->add(new \LinkORB\Component\Etcd\Command\EtcdSetCommand());
 $application->add(new \LinkORB\Component\Etcd\Command\EtcdGetCommand());
 $application->add(new \LinkORB\Component\Etcd\Command\EtcdMkCommand());

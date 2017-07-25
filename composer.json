@@ -2,7 +2,13 @@
     "name": "linkorb/etcd-php",
     "description": "Etcd client library for PHP",
     "homepage": "http://www.github.com/linkorb/etcd-php",
-    "keywords": ["php", "etcd", "api", "distributed", "configuration"],
+    "keywords": [
+        "php",
+        "etcd",
+        "api",
+        "distributed",
+        "configuration"
+    ],
     "type": "library",
     "authors": [
         {
@@ -12,18 +18,25 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0",
+        "php": ">=5.6",
         "symfony/console": "^2.4 || ^3.0",
-        "guzzle/guzzle": "~3.8"
+        "guzzlehttp/guzzle": "^6.3"
     },
     "require-dev": {
-        "phpunit/phpunit": "3.7.*"
+        "phpunit/phpunit": "^5.7"
     },
     "autoload": {
         "psr-4": {
             "LinkORB\\Component\\Etcd\\": "src/"
         }
     },
-    "bin": ["bin/etcd-php"],
+    "autoload-dev": {
+        "psr-4": {
+            "LinkORB\\Tests\\Component\\Etcd\\": "tests/"
+        }
+    },
+    "bin": [
+        "bin/etcd-php"
+    ],
     "license": "MIT"
 }
