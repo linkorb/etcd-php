@@ -28,12 +28,12 @@ class ClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers LinkORB\Component\Etcd\Client::doRequest
+     * @covers LinkORB\Component\Etcd\Client::getVersion
      */
-    public function testDoRequest()
+    public function testGetVersion()
     {
-        $version = $this->client->doRequest('/version');
-        $this->assertArrayHasKey('etcdserver', json_decode($version, true));
+        $version = $this->client->getVersion('/version');
+        $this->assertArrayHasKey('etcdserver', $version);
     }
 
     /**

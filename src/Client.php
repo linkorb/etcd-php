@@ -2,11 +2,13 @@
 
 namespace LinkORB\Component\Etcd;
 
-use Guzzle\Http\Client as GuzzleClient;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Exception\BadResponseException;
 use LinkORB\Component\Etcd\Exception\EtcdException;
 use LinkORB\Component\Etcd\Exception\KeyExistsException;
 use LinkORB\Component\Etcd\Exception\KeyNotFoundException;
 use RecursiveArrayIterator;
+use RuntimeException;
 use stdClass;
 
 class Client
@@ -14,28 +16,25 @@ class Client
     private $server = 'http://127.0.0.1:2379';
 
     private $guzzleclient;
-    
+
     private $apiversion;
 
-    private $root = '/';
-    
+    private $root = '';
+
     public function __construct($server = '', $version = 'v2')
     {
         $server = rtrim($server, '/');
-        
+
         if ($server) {
             $this->server = $server;
         }
-        
+
         // echo 'Testing server ' . $this->server . PHP_EOL;
-         
+
         $this->apiversion = $version;
         $this->guzzleclient = new GuzzleClient(
-            $this->server,
             array(
-                'request.options' => array(
-                    'exceptions' => false
-                )
+                'base_uri' => $this->server
             )
         );
     }
@@ -55,7 +54,7 @@ class Client
      */
     public function setRoot($root)
     {
-        if (strpos('/', $root) === false) {
+        if (strpos($root, '/') !== 0) {
             $root = '/' . $root;
         }
         $this->root = rtrim($root, '/');
@@ -69,7 +68,7 @@ class Client
      */
     private function buildKeyUri($key)
     {
-        if (strpos('/', $key) === false) {
+        if (strpos($key, '/') !== 0) {
             $key = '/' . $key;
         }
         $uri = '/' . $this->apiversion . '/keys' . $this->root . $key;
@@ -78,15 +77,17 @@ class Client
 
 
     /**
-     * Do a server request
+     * get server version
      * @param string $uri
      * @return mixed
      */
-    public function doRequest($uri)
+    public function getVersion($uri)
     {
-        $request = $this->guzzleclient->get($uri);
-        $response = $request->send();
-        $data = $response->getBody(true);
+        $response = $this->guzzleclient->get($uri);
+        $data = json_decode($response->getBody(), true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new RuntimeException('Unable to parse response body into JSON: ' . json_last_error());
+        }
         return $data;
     }
 
@@ -101,48 +102,55 @@ class Client
     public function set($key, $value, $ttl = null, $condition = array())
     {
         $data = array('value' => $value);
-        
+
         if ($ttl) {
             $data['ttl'] = $ttl;
         }
-        
-        $request = $this->guzzleclient->put($this->buildKeyUri($key), null, $data, array(
-            'query' => $condition
-        ));
-        $response = $request->send();
-        $body = $response->json();
+
+        try {
+            $response = $this->guzzleclient->put($this->buildKeyUri($key), array(
+                'query' => $condition,
+                'form_params' => $data
+            ));
+        } catch (BadResponseException $e) {
+            $response = $e->getResponse();
+        }
+        $body = json_decode($response->getBody(), true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new RuntimeException('Unable to parse response body into JSON: ' . json_last_error());
+        }
         return $body;
     }
 
     /**
      * Retrieve the value of a key
      * @param string $key
-     * @param array $flags the extra query params
+     * @param array $query the extra query params
      * @return array
      * @throws KeyNotFoundException
      */
-    public function getNode($key, array $flags = null)
+    public function getNode($key, array $query = array())
     {
-        $query = array();
-        if ($flags) {
-            $query = array(
-                'query' => $flags
+        try {
+            $response = $this->guzzleclient->get(
+                $this->buildKeyUri($key),
+                array(
+                    'query' => $query
+                )
             );
+        } catch (BadResponseException $e) {
+            $response = $e->getResponse();
         }
-        
-        $request = $this->guzzleclient->get(
-            $this->buildKeyUri($key),
-            null,
-            $query
-        );
-        $response = $request->send();
-        $body = $response->json();
+        $body = json_decode($response->getBody(), true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new RuntimeException('Unable to parse response body into JSON: ' . json_last_error());
+        }
         if (isset($body['errorCode'])) {
             throw new KeyNotFoundException($body['message'], $body['errorCode']);
         }
         return $body['node'];
     }
-    
+
     /**
      * Retrieve the value of a key
      * @param string $key
@@ -150,7 +158,7 @@ class Client
      * @return string the value of the key.
      * @throws KeyNotFoundException
      */
-    public function get($key, array $flags = null)
+    public function get($key, array $flags = array())
     {
         try {
             $node = $this->getNode($key, $flags);
@@ -177,11 +185,11 @@ class Client
             $ttl,
             array('prevExist' => 'false')
         );
-        
+
         if (isset($body['errorCode'])) {
             throw new KeyExistsException($body['message'], $body['errorCode']);
         }
-        
+
         return $body;
     }
 
@@ -196,21 +204,26 @@ class Client
     public function mkdir($key, $ttl = 0)
     {
         $data = array('dir' => 'true');
-        
+
         if ($ttl) {
             $data['ttl'] = $ttl;
         }
-        $request = $this->guzzleclient->put(
-            $this->buildKeyUri($key),
-            null,
-            $data,
-            array(
-                'query' => array('prevExist' => 'false')
-            )
-        );
-        
-        $response = $request->send();
-        $body = $response->json();
+        try {
+            $response = $this->guzzleclient->put(
+                $this->buildKeyUri($key),
+                array(
+                    'query' => array('prevExist' => 'false'),
+                    'form_params' => $data
+                )
+            );
+        } catch (BadResponseException $e) {
+            $response = $e->getResponse();
+        }
+        $body = json_decode($response->getBody(), true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new RuntimeException('Unable to parse response body into JSON: ' . json_last_error());
+        }
+
         if (isset($body['errorCode'])) {
             throw new KeyExistsException($body['message'], $body['errorCode']);
         }
@@ -230,7 +243,7 @@ class Client
     public function update($key, $value, $ttl = 0, $condition = array())
     {
         $extra = array('prevExist' => 'true');
-        
+
         if ($condition) {
             $extra = array_merge($extra, $condition);
         }
@@ -240,7 +253,7 @@ class Client
         }
         return $body;
     }
-    
+
     /**
      * Update directory
      * @param string $key
@@ -253,24 +266,26 @@ class Client
         if (!$ttl) {
             throw new EtcdException('TTL is required', 204);
         }
-        
+
         $condition = array(
             'dir' => 'true',
             'prevExist' => 'true'
         );
-        
-        $request = $this->guzzleclient->put(
+
+        $response = $this->guzzleclient->put(
             $this->buildKeyUri($key),
-            null,
             array(
-                'ttl' => (int) $ttl
-            ),
-            array(
-                'query' => $condition
+                'query' => $condition,
+                'form_params' => array(
+                    'ttl' => (int)$ttl
+                )
             )
         );
-        $response = $request->send();
-        $body = $response->json();
+        $body = json_decode($response->getBody(), true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new RuntimeException('Unable to parse response body into JSON: ' . json_last_error());
+        }
+
         if (isset($body['errorCode'])) {
             throw new EtcdException($body['message'], $body['errorCode']);
         }
@@ -286,17 +301,23 @@ class Client
      */
     public function rm($key)
     {
-        $request = $this->guzzleclient->delete($this->buildKeyUri($key));
-        $response = $request->send();
-        $body = $response->json();
-        
+        try {
+            $response = $this->guzzleclient->delete($this->buildKeyUri($key));
+        } catch (BadResponseException $e) {
+            $response = $e->getResponse();
+        }
+        $body = json_decode($response->getBody(), true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new RuntimeException('Unable to parse response body into JSON: ' . json_last_error());
+        }
+
         if (isset($body['errorCode'])) {
             throw new EtcdException($body['message'], $body['errorCode']);
         }
-        
+
         return $body;
     }
-    
+
     /**
      * Removes the key if it is directory
      * @param string $key
@@ -307,26 +328,32 @@ class Client
     public function rmdir($key, $recursive = false)
     {
         $query = array('dir' => 'true');
-        
+
         if ($recursive === true) {
             $query['recursive'] = 'true';
         }
-        $request = $this->guzzleclient->delete(
-            $this->buildKeyUri($key),
-            null,
-            null,
-            array(
-                'query' => $query
-            )
-        );
-        $response = $request->send();
-        $body = $response->json();
+
+        try {
+            $response = $this->guzzleclient->delete(
+                $this->buildKeyUri($key),
+                array(
+                    'query' => $query
+                )
+            );
+        } catch (BadResponseException $e) {
+            $response = $e->getResponse();
+        }
+        $body = json_decode($response->getBody(), true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new RuntimeException('Unable to parse response body into JSON: ' . json_last_error());
+        }
+
         if (isset($body['errorCode'])) {
             throw new EtcdException($body['message'], $body['errorCode']);
         }
         return $body;
     }
-    
+
     /**
      * Retrieve a directory
      * @param string $key
@@ -340,15 +367,17 @@ class Client
         if ($recursive === true) {
             $query['recursive'] = 'true';
         }
-        $request = $this->guzzleclient->get(
+        $response = $this->guzzleclient->get(
             $this->buildKeyUri($key),
-            null,
             array(
                 'query' => $query
             )
         );
-        $response = $request->send();
-        $body = $response->json();
+        $body = json_decode($response->getBody(), true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new RuntimeException('Unable to parse response body into JSON: ' . json_last_error());
+        }
+
         if (isset($body['errorCode'])) {
             throw new KeyNotFoundException($body['message'], $body['errorCode']);
         }
@@ -373,13 +402,13 @@ class Client
         } catch (EtcdException $e) {
             throw $e;
         }
-        
+
         $iterator = new RecursiveArrayIterator($data);
         return $this->traversalDir($iterator);
     }
 
     private $dirs = array();
-    
+
     private $values = array();
 
 
@@ -398,7 +427,7 @@ class Client
                 if ($iterator->key() == 'key' && ($iterator->current() != '/')) {
                     $this->dirs[] = $key = $iterator->current();
                 }
-                
+
                 if ($iterator->key() == 'value') {
                     $this->values[$key] = $iterator->current();
                 }
@@ -407,7 +436,7 @@ class Client
         }
         return $this->dirs;
     }
-    
+
     /**
      * Get all key-value pair that the key is not directory.
      * @param string $key
