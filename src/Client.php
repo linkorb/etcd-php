@@ -39,7 +39,7 @@ class Client
         );
     }
 
-    public static function constructWithGuzzleClient(GuzzleClient $guzzleClient)
+    public static function constructWithGuzzleClient(GuzzleClient $guzzleClient, $server, $version)
     {
         $client = new Client($server, $version);
         $client->guzzleClient = $guzzleClient;
