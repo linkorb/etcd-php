@@ -21,6 +21,10 @@ class Client
 
     private $root = '';
 
+    private $user;
+
+    private $password;
+
     public function __construct($server = '', $version = 'v2')
     {
         $server = rtrim($server, '/');
@@ -37,6 +41,26 @@ class Client
                 'base_uri' => $this->server
             )
         );
+    }
+
+    /**
+     * add auth to etcd
+     * @param string $user
+     * @param string $password
+     * @return Client
+     * @author vogan <voganwong@gmail.com>
+     */
+    public function authenticate($user, $password)
+    {
+        $this->user = $user;
+        $this->password = $password;
+        $this->guzzleclient = new GuzzleClient(
+            array(
+                'base_uri' => $this->server,
+                'auth' => array($this->user, $this->password), // default is Basic
+            )
+        );
+        return $this;
     }
 
     /**
