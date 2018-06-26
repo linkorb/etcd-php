@@ -21,7 +21,11 @@ class Client
 
     private $root = '';
 
-    public function __construct($server = '', $version = 'v2')
+    private $user;
+
+    private $password;
+
+    public function __construct($server = '', $user = null, $password = null, $version = 'v2')
     {
         $server = rtrim($server, '/');
 
@@ -31,12 +35,31 @@ class Client
 
         // echo 'Testing server ' . $this->server . PHP_EOL;
 
-        $this->apiversion = $version;
-        $this->guzzleclient = new GuzzleClient(
-            array(
-                'base_uri' => $this->server
-            )
+        $args = array(
+            'base_uri' => $this->server
         );
+
+        // v2 only has Basic Auth!
+        if ($user !== null && $password !== null) {
+            $this->user = $user;
+            $this->password = $password;
+            $args['auth'] = array($this->user, $this->password);
+        }
+
+        $this->apiversion = $version;
+        $this->guzzleclient = new GuzzleClient($args);
+    }
+
+    /**
+     * Allow a user to override the internal guzzle client with a custom
+     * version.
+     * @param GuzzleClient $guzzleClient
+     * @return Client
+     */
+    public function setGuzzleClient(GuzzleClient $guzzleClient)
+    {
+        $this->guzzleclient = $guzzleClient;
+        return $this;
     }
 
     /**
