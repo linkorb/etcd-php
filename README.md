@@ -30,25 +30,36 @@ Btw, we're hiring!
 
 ### The client
 
-```php
-    $client = new Client($server);
-    $client->set('/foo', 'fooValue');
-    // Set the ttl
-    $client->set('/foo', 'fooValue', 10);
-    // get key value
-    echo $client->get('/foo');
-    
-    // Update value with key
-    $client->update('/foo', 'newFooValue');
-    
-    // Delete key
-    $client->rm('/foo');
+### Instantiate the client
 
-    // Create a directory
-    $client->mkdir('/fooDir');
-    // Remove dir
-    $client->rmdir('/fooDir');
-    
+```php
+$client = new Client($server);
+```
+
+### Instantiate the client with custom Guzzle Client
+
+```php
+$client = Client::constructWithGuzzleClient($guzzleClient, $server);
+```
+
+### Use the client instance
+```php
+$client->set('/foo', 'fooValue');
+// Set the ttl
+$client->set('/foo', 'fooValue', 10);
+// get key value
+echo $client->get('/foo');
+
+// Update value with key
+$client->update('/foo', 'newFooValue');
+
+// Delete key
+$client->rm('/foo');
+
+// Create a directory
+$client->mkdir('/fooDir');
+// Remove dir
+$client->rmdir('/fooDir');    
 ```
 
 ### The command line tool

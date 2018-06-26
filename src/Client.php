@@ -39,6 +39,13 @@ class Client
         );
     }
 
+    public static function constructWithGuzzleClient(GuzzleClient $guzzleClient, $server, $version)
+    {
+        $client = new Client($server, $version);
+        $client->guzzleClient = $guzzleClient;
+        return $client;
+    }
+
     /**
      * Set the default root directory. the default is `/`
      * If the root is others e.g. /linkorb when you set new key,
