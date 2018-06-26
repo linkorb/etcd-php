@@ -32,6 +32,9 @@ Btw, we're hiring!
 
 ```php
     $client = new Client($server);
+    // To add authentication, use:
+    // $client = new Client($server, $user, $pass);
+
     $client->set('/foo', 'fooValue');
     // Set the ttl
     $client->set('/foo', 'fooValue', 10);
