@@ -51,6 +51,18 @@ class Client
     }
 
     /**
+     * Allow a user to override the internal guzzle client with a custom
+     * version.
+     * @param GuzzleClient $guzzleClient
+     * @return Client
+     */
+    public function setGuzzleClient(GuzzleClient $guzzleClient)
+    {
+        $this->guzzleclient = $guzzleClient;
+        return $this;
+    }
+
+    /**
      * Set the default root directory. the default is `/`
      * If the root is others e.g. /linkorb when you set new key,
      * or set dir, all of the key is under the root
