@@ -42,8 +42,20 @@ class Client
     public static function constructWithGuzzleClient(GuzzleClient $guzzleClient, $server, $version)
     {
         $client = new Client($server, $version);
-        $client->guzzleClient = $guzzleClient;
+        $client->setGuzzleClient($guzzleClient);
         return $client;
+    }
+	
+	
+	/**
+	 * Set custom GuzzleClient in Client
+	 * @param GuzzleClient $guzzleClient
+	 * @return Client
+	 */
+	public function setGuzzleClient(GuzzleClient $guzzleClient)
+	{
+		$this->guzzleclient = $guzzleClient;
+		return $this;
     }
 
     /**
