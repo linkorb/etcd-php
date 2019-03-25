@@ -155,6 +155,12 @@ Recursively delete a key and all child keys:
 $ bin/etcd-php etcd:rmdir /path/to/dir --recursive
 ```
 
+#### Export node
+
+```bash
+$ bin/etcd-php etcd:export --server=http://127.0.0.1:2379 --format=json --output=config.json /path/to/dir
+```
+
 #### Watching for changes
 
 Watch for only the next change on a key:
