@@ -154,4 +154,10 @@ class ClientTest extends BaseTest
         $node = $this->client->getNode($key);
         $this->assertJsonStringEqualsJsonString(json_encode($node), json_encode($setdata['node']));
     }
+
+    public function testGetMembers()
+    {
+        $members = $this->client->getMembers();
+        $this->assertArrayHasKey('members', $members);
+    }
 }

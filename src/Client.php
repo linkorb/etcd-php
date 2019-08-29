@@ -15,6 +15,9 @@ class Client
 {
     private $server = 'http://127.0.0.1:2379';
 
+    /**
+     * @var GuzzleClient
+     */
     private $guzzleclient;
 
     private $apiversion;
@@ -525,4 +528,21 @@ class Client
         return $body;
     }
 
+    /**
+     * get server member list
+     * @return array
+     */
+    public function getMembers()
+    {
+        $response = $this->guzzleclient->get(
+            $this->apiversion . '/members'
+        );
+
+        $data = json_decode($response->getBody(), true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new RuntimeException('Unable to parse response body into JSON: ' . json_last_error());
+        }
+
+        return $data;
+    }
 }
