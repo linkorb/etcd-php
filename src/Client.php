@@ -252,7 +252,7 @@ class Client
 
     /**
      * Update an existing key with a given value.
-     * @param strint $key
+     * @param string $key
      * @param string $value
      * @param int $ttl
      * @param array $condition The extra condition for updating
