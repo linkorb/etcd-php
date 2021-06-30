@@ -25,6 +25,10 @@ Check out our other projects at [linkorb.com/engineering](http://www.linkorb.com
 
 Btw, we're hiring!
 
+## Installation
+```shell
+composer require linkorb/etcd-php
+```
 
 ## Usage
 
