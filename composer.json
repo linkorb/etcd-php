@@ -1,7 +1,7 @@
 {
-    "name": "linkorb/etcd-php",
+    "name": "andrejsjakovlevs/etcd-php",
     "description": "Etcd client library for PHP",
-    "homepage": "http://www.github.com/linkorb/etcd-php",
+    "homepage": "http://www.github.com/andrejsjakovlevs/etcd-php",
     "keywords": [
         "php",
         "etcd",
@@ -14,6 +14,10 @@
         {
             "name": "Joost Faassen",
             "email": "j.faassen@linkorb.com",
+            "role": "Development"
+        },
+        {
+            "name": "Andy Yakovlev",
             "role": "Development"
         }
     ],
